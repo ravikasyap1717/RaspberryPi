@@ -1,0 +1,42 @@
+Instructions : 
+	
+Please note: You must be using a 32-bit kernel (or the default Raspbian kernel) to compile a new 32-bit kernel. You will not be able to compile a new kernel (32-bit or 64-bit) if you have booted in to the 64-bit kernel using the “arm_64bit=1” switch in “config.txt”. I’ve tried to compile a 64-bit kernel on Raspbian, but have not yet been able to do so. I’ll update with a new post once I figure it out.
+
+This guide will compile a 32-bit kernel.Install some packages required to building and compiling.
+
+# apt install raspberrypi-kernel-headers build-essential bc git wget bison flex libssl-dev make libncurses-dev
+
+Create a directory for us to work in.
+# mkdir kernel
+# cd kernel
+
+Clone the latest kernel sources using GIT.
+# git clone --depth=1 https://github.com/raspberrypi/linux
+
+Setup the kernel configuration for compiling.
+# cd linux
+# KERNEL=kernel7l
+# make bcm2711_defconfig
+
+Make any changes you want to the kernel configuration and append a friendly local version name by using make menuconfig.
+# make menuconfig
+
+
+Compile the kernel, modules, and device tree blobs.
+# make -j4 zImage modules dtbs
+
+Install compiled modules.
+# make modules_install
+
+Copy the kernel, modules, and other files to the boot filesystem.
+# cp arch/arm/boot/dts/*.dtb /boot/
+# cp arch/arm/boot/dts/overlays/*.dtb* /boot/overlays/
+# cp arch/arm/boot/dts/overlays/README /boot/overlays/
+# cp arch/arm/boot/zImage(Image.gz) /boot/kernel-new.img
+
+Configure the PI to boot using the new kernel by modifying and adding the below line to “/boot/config.txt”.
+kernel=kernel-new.img
+Reboot!
+
+Bam! You’re now using your shiny new Linux kernel on the Raspberry Pi 4!
+
